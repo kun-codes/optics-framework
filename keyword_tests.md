@@ -43,3 +43,180 @@ enter_number
 
 enter_text
 - when passing element as a text string when it is on screen, the element is detected and text is entered but an E0401 error code is thrown. No logs are printed in `execution_logs.log` or `internal_logs.log`. A `NoSuchElementError` is thrown followed by a "Entering text into element" log in `internal_logs.log`.
+
+## keywords after this were tested solely via `optics serve` command
+
+enter_text_direct
+- works
+
+enter_text_using_keyboard
+- doesn't work. Tried <enter> as written at https://mozarkai.github.io/optics-framework/usage/keyword_usage/#enter-text-using-keyboard and it instead typed "SpecialKey.ENTER" into the text field.
+
+evaluate
+- doesn't work. Tried:
+  ```
+  {
+  "mode": "keyword",
+  "keyword": "Evaluate",
+  "params": ["${result}", "1 + 2 * 3"],
+  "template_images": {}
+  }
+  ```
+
+  Returned:
+  ```
+  {
+  "detail": "Execution failed: All fallback attempts failed for keyword 'Evaluate':\n('${result}', '1 + 2 * 3') -> OpticsError('Code.E0701: Execution failed: Code.E0701: Execution failed: Code.E0401: Keyword execution failed: Code.E0702: Session elements is not an ElementData instance or is None.')"
+  }
+  ```
+  
+execute_module
+- TODO
+
+execute_script
+- TODO
+
+force_terminate_app
+- works
+
+get_app_version
+- doesn't work. Tried with:
+    ```
+    {
+        "mode": "keyword",
+        "keyword": "Get App Version",
+        "params": ["com.samsung.android.calendar"],
+        "template_images": {}
+    }
+    ```
+
+    got this:
+    ```
+    {
+        "detail": "Execution failed: All fallback attempts failed for keyword 'Get App Version':\n('com.samsung.android.calendar',) -> OpticsError(\"Code.E0701: Execution failed: Code.E0701: Execution failed: Code.E0401: Keyword execution failed: Code.E0401: Error executing adb command ['adb', '-s', 'RZCT20HFLRM', 'shell', 'pm', 'dump', 'com.samsung.android.calendar']: Command '['adb', '-s', 'RZCT20HFLRM', 'shell', 'pm', 'dump', 'com.samsung.android.calendar']' returned non-zero exit status 1.. Received output = .\")"
+    }
+    ```
+
+    Maybe adb cannot reach the device
+
+get_driver_session_id
+- works
+
+get_interactive_elements
+- works when passing without any filter.
+- doesn't work when passing a filter. Tried with:
+    ```
+    {
+        "mode": "keyword",
+        "keyword": "Get Interactive Elements",
+        "params": [["interactive"]],
+        "template_images": {}
+    }
+    ```
+
+    Got this:
+    ```
+    {
+        "detail": "Execution failed: All fallback attempts failed for keyword 'Get Interactive Elements':\n('buttons',) -> OpticsError('Code.E0701: Execution failed: Code.E0701: Execution failed: Code.E0401: Keyword execution failed: Code.E0202: No interactive elements retrieved using available strategies.')"
+    }
+    ```
+    
+get_screen_elements
+- TODO because it is present in `optics live` tui but not in docs at: https://mozarkai.github.io/optics-framework/usage/keyword_usage/
+
+get_text
+- failed. Tried:
+    ```
+    {
+      "mode": "keyword",
+      "keyword": "Get Text",
+      "params": ["//android.widget.Button"],
+      "template_images": {}
+    }
+    ```
+
+    Got:
+    ```
+    {
+      "detail": "Execution failed: All fallback attempts failed for keyword 'Get Text':\n('//android.widget.Button',) -> OpticsError(\"Code.E0701: Execution failed: Code.E0701: Execution failed: Code.E0401: Keyword execution failed: Message: 'value' attribute is unknown for the element. Only the following attributes are supported: [checkable, checked, {class,className}, clickable, {content-desc,contentDescription}, enabled, focusable, focused, {long-clickable,longClickable}, package, password, {resource-id,resourceId}, scrollable, selection-start, selection-end, selected, {text,name}, hint, extras, bounds, displayed, contentSize, {a11y-important,importantForAccessibility}, {screen-reader-focusable,screenReaderFocusable}, {input-type,inputType}, {drawing-order,drawingOrder}, {showing-hint,showingHintText}, {text-entry-key,textEntryKey}, {multiline,multiLine}, dismissable, {a11y-focused,accessibilityFocused}, heading, {live-region,liveRegion}, {context-clickable,contextClickable}, {max-text-length,maxTextLength}, {content-invalid,contentInvalid}, {error,errorText}, {pane-title,paneTitle}, {tooltip-text,tooltipText}, {text-has-clickable-span,textHasClickableSpan}, actions]\\nStacktrace:\\nio.appium.uiautomator2.common.exceptions.NoSuchAttributeException: 'value' attribute is unknown for the element. Only the following attributes are supported: [checkable, checked, {class,className}, clickable, {content-desc,contentDescription}, enabled, focusable, focused, {long-clickable,longClickable}, package, password, {resource-id,resourceId}, scrollable, selection-start, selection-end, selected, {text,name}, hint, extras, bounds, displayed, contentSize, {a11y-important,importantForAccessibility}, {screen-reader-focusable,screenReaderFocusable}, {input-type,inputType}, {drawing-order,drawingOrder}, {showing-hint,showingHintText}, {text-entry-key,textEntryKey}, {multiline,multiLine}, dismissable, {a11y-focused,accessibilityFocused}, heading, {live-region,liveRegion}, {context-clickable,contextClickable}, {max-text-length,maxTextLength}, {content-invalid,contentInvalid}, {error,errorText}, {pane-title,paneTitle}, {tooltip-text,tooltipText}, {text-has-clickable-span,textHasClickableSpan}, actions]\\n\\tat io.appium.uiautomator2.utils.ElementHelpers.generateNoAttributeException(ElementHelpers.java:102)\\n\\tat io.appium.uiautomator2.model.UiObject2Element.getAttribute(UiObject2Element.java:79)\\n\\tat io.appium.uiautomator2.handler.GetElementAttribute.safeHandle(GetElementAttribute.java:24)\\n\\tat io.appium.uiautomator2.handler.request.SafeRequestHandler.handle(SafeRequestHandler.java:59)\\n\\tat io.appium.uiautomator2.server.AppiumServlet.handleRequest(AppiumServlet.java:259)\\n\\tat io.appium.uiautomator2.server.AppiumServlet.handleHttpRequest(AppiumServlet.java:253)\\n\\tat io.appium.uiautomator2.http.ServerHandler.channelRead(ServerHandler.java:77)\\n\\tat io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:374)\\n\\tat io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:360)\\n\\tat io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:352)\\n\\tat io.netty.handler.codec.MessageToMessageDecoder.channelRead(MessageToMessageDecoder.java:102)\\n\\tat io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:374)\\n\\tat io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:360)\\n\\tat io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:352)\\n\\tat io.netty.channel.CombinedChannelDuplexHandler$DelegatingChannelHandlerContext.fireChannelRead(CombinedChannelDuplexHandler.java:438)\\n\\tat io.netty.handler.codec.ByteToMessageDecoder.fireChannelRead(ByteToMessageDecoder.java:328)\\n\\tat io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:302)\\n\\tat io.netty.channel.CombinedChannelDuplexHandler.channelRead(CombinedChannelDuplexHandler.java:253)\\n\\tat io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:374)\\n\\tat io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:360)\\n\\tat io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:352)\\n\\tat io.netty.handler.timeout.IdleStateHandler.channelRead(IdleStateHandler.java:287)\\n\\tat io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:374)\\n\\tat io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:360)\\n\\tat io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:352)\\n\\tat io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1422)\\n\\tat io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:374)\\n\\tat io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:360)\\n\\tat io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:931)\\n\\tat io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:163)\\n\\tat io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:700)\\n\\tat io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:635)\\n\\tat io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:552)\\n\\tat io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:514)\\n\\tat io.netty.util.concurrent.SingleThreadEventExecutor$6.run(SingleThreadEventExecutor.java:1044)\\n\\tat io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)\\n\\tat io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\\n\\tat java.lang.Thread.run(Thread.java:1564)\\n\")"
+    }
+    ```
+
+    When tried with:
+    ```
+    {
+      "mode": "keyword",
+      "keyword": "Get Text",
+      "params": ["text=Save offer"],
+      "template_images": {}
+    }
+    ```
+
+    Got this:
+    ```
+    {
+      "execution_id": "894dde1a-20bf-4fb6-af15-9464c6c0a3ed",
+      "status": "SUCCESS",
+      "data": {
+        "result": null
+      }
+    }
+    ```
+    
+
+
+initialise_setup
+- is not exposed via `optics serve` as written here: https://mozarkai.github.io/optics-framework/usage/keyword_usage/#flow-control-keywords
+
+invoke_api
+- started session by passing data into api_data field but when tried with:
+   ```
+   {
+      "mode": "keyword",
+      "keyword": "Invoke API",
+      "params": ["jsonplaceholder.get_post"],
+      "template_images": {}
+    }
+   ```
+
+   Got:
+   ```
+   {
+      "detail": "Execution failed: All fallback attempts failed for keyword 'Invoke API':\n('jsonplaceholder.get_post',) -> OpticsError(\"Code.E0701: Execution failed: Code.E0701: Execution failed: Code.E0401: Keyword execution failed: Code.E0601: API collection 'jsonplaceholder' not found.\")"
+    }
+   ```
+   
+   Had created session with:
+   ```
+   "api_data": {
+    "jsonplaceholder": {
+      "name": "jsonplaceholder",
+      "base_url": "https://jsonplaceholder.typicode.com",
+      "global_headers": {},
+      "apis": {
+        "get_post": {
+          "name": "get_post",
+          "endpoint": "/posts/1",
+          "request": {
+            "method": "GET",
+            "headers": {},
+            "body": null
+          }
+        }
+      }
+    }
+  }
+   ```
+
+is_element
+-  TODO because it is present in `optics live` tui but not in docs at: https://mozarkai.github.io/optics-framework/usage/keyword_usage/
+
+launch_app
+- didn't work
+
+launch_other_app
+- works in both cases when app is not running and when app is already running but in background.
+
+
+press_keycode
+- works but inconsistently. After leaving the session open at `https://mozarkdemo-app-testing.mozark.ai/motesting/interact/` for sometime, it fails to press keycodes.
