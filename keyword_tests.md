@@ -217,6 +217,28 @@ launch_app
 launch_other_app
 - works in both cases when app is not running and when app is already running but in background.
 
+press_by_coordinates
+- works, didn't test repeat param
+
+press_by_percentage
+- works, didn't test repeat param
+
+press_element
+- works when element is present on screen
+
+read_data
+- works
+
+run_loop
+- TODO
+
+scroll
+- TODO, works but possibly reversed directions, have to test out PR https://github.com/mozarkai/optics-framework/pull/316
+
+scroll_from_element
+- TODO, works but possibly reversed directions, have to test out PR https://github.com/mozarkai/optics-framework/pull/316
+
+
 
 press_keycode
 - works but inconsistently. After leaving the session open at `https://mozarkdemo-app-testing.mozark.ai/motesting/interact/` for sometime, it fails to press keycodes.
