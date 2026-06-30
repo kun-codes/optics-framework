@@ -132,7 +132,8 @@ get_interactive_elements
     ```
     
 get_screen_elements
-- TODO because it is present in `optics live` tui but not in docs at: https://mozarkai.github.io/optics-framework/usage/keyword_usage/
+- works but it returns an image as base64 string in the response. A more efficient alternative would be to return a url to the image instead of the base64 string. The image can then be downloaded from the url. 
+- This keyword is not present in the docs at: https://mozarkai.github.io/optics-framework/usage/keyword_usage/ but is present in `optics live` tui.
 
 get_text
 - failed. Tried:
