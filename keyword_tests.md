@@ -241,3 +241,81 @@ scroll
 scroll_from_element
 - TODO, works but possibly reversed directions, have to test out PR https://github.com/mozarkai/optics-framework/pull/316
 
+scroll_until_element_appears
+- when passing in an appropriate element along with a suitable timeout, the element is scrolled down to and is detected. But when passing in a short timeout it still gives `"status": "SUCCESS"` in the response. Seems misleading. Should have given an error code instead. Scroll successfully stops when element is detected.
+
+select_dropdown_option
+- TODO because it is present in `optics live` tui but not in docs at: https://mozarkai.github.io/optics-framework/usage/keyword_usage/
+
+sleep
+- work
+
+start_appium_session
+- TODO
+
+swipe
+- works, but when tested with a wrong request json like this:
+    ```
+    {
+      "mode": "keyword",
+      "keyword": "Swipe",
+      "params": ["540", "2000", "540", "500"],
+      "template_images": {}
+    }
+    ```
+
+    instead of 
+    ```
+    {
+      "mode": "keyword",
+      "keyword": "Swipe",
+      "params": ["540", "1200", "down", "500"],
+      "template_images": {}
+    }
+    ```
+
+    it still says `"status": "SUCCESS"` in the response. Should have been a validation error instead since the values in request json fields were not as expected.
+
+swipe_by_percentage
+- when passing 
+    ```
+    {
+      "mode": "keyword",
+      "keyword": "Swipe Percentage",
+      "params": ["50", "50", "up", "30"],
+      "template_images": {}
+    }
+    ```
+
+    it responds with:
+
+    ```
+    {
+      "detail": {
+        "type": "optics:keyword",
+        "code": "Code.E0402",
+        "status": 404,
+        "message": "Keyword Swipe Percentage not found",
+        "details": null,
+        "meta": null
+      }
+    }
+    ```
+
+    but this is how it is written at docs here: https://mozarkai.github.io/optics-framework/usage/keyword_usage/#swipe-percentage
+
+    `optics live` reports it to be `swipe_by_percentage` instead of `swipe_percentage`. So the docs are wrong. When tried `Swipe By Percentage` instead of `Swipe Percentage`, it worked. So the docs need to be updated.
+
+- The wrong request json problem like in `swipe` keyword above may also exist
+
+swipe_from_element
+- works
+
+swipe_until_element_appears
+-  works but even if element never appears on screen, it still gives `"status": "SUCCESS"` in the response. Should have given an error code instead. Swipe successfully stops when element is detected.
+
+validate_element
+- works. Returns error if element is not present on screen. Returns `"status": "SUCCESS"` if element is present on screen.
+
+validate_screen
+- works. Returns its result as `"result": true` or `"result": false` in the response or `"result": false` in the response.
