@@ -248,10 +248,10 @@ run_loop
 - TODO
 
 scroll
-- TODO, works but possibly reversed directions, have to test out PR https://github.com/mozarkai/optics-framework/pull/316
+- works
 
 scroll_from_element
-- TODO, works but possibly reversed directions, have to test out PR https://github.com/mozarkai/optics-framework/pull/316
+- works
 
 scroll_until_element_appears
 - when passing in an appropriate element along with a suitable timeout, the element is scrolled down to and is detected. But when passing in a short timeout it still gives `"status": "SUCCESS"` in the response. Seems misleading. Should have given an error code instead. Scroll successfully stops when element is detected.
