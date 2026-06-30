@@ -230,7 +230,7 @@ launch_other_app
 - works in both cases when app is not running and when app is already running but in background.
 
 press_by_coordinates
-- works, didn't test repeat param
+- works but test repeat paramater doesn't work. It always presses the coordinates once even if repeat param is set to a value greater than 1. It is because `action_keyword.py:339` doesn't use the `repeat` parameter in the `press_by_coordinates()` function.
 
 press_by_percentage
 - works, didn't test repeat param
