@@ -226,6 +226,9 @@ press_by_percentage
 press_element
 - works when element is present on screen
 
+press_keycode
+- works but inconsistently. After leaving the session open at `https://mozarkdemo-app-testing.mozark.ai/motesting/interact/` for sometime, it fails to press keycodes.
+
 read_data
 - works
 
@@ -238,7 +241,3 @@ scroll
 scroll_from_element
 - TODO, works but possibly reversed directions, have to test out PR https://github.com/mozarkai/optics-framework/pull/316
 
-
-
-press_keycode
-- works but inconsistently. After leaving the session open at `https://mozarkdemo-app-testing.mozark.ai/motesting/interact/` for sometime, it fails to press keycodes.
