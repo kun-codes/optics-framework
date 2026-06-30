@@ -266,7 +266,7 @@ sleep
 - work
 
 start_appium_session
-- TODO
+- Didn't test because as per docs at: https://mozarkai.github.io/optics-framework/usage/keyword_usage/#start-appium-session it is automatically called during setup
 
 swipe
 - works, but when tested with a wrong request json like this:
