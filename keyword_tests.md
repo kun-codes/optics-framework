@@ -74,7 +74,17 @@ execute_module
 - TODO
 
 execute_script
-- TODO
+- works, tested with 
+    ```
+    {
+      "mode": "keyword",
+      "keyword": "Execute Script",
+      "params": [
+        "{\"script\": \"mobile:pressKey\", \"args\": {\"keycode\": 3}}"
+      ],
+      "template_images": {}
+    }
+    ```
 
 force_terminate_app
 - works
