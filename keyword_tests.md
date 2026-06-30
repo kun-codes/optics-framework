@@ -220,8 +220,9 @@ invoke_api
    ```
 
 is_element
--  TODO because it is present in `optics live` tui but not in docs at: https://mozarkai.github.io/optics-framework/usage/keyword_usage/
-
+-  it is present in `optics live` tui but not in docs at: https://mozarkai.github.io/optics-framework/usage/keyword_usage/
+- verifier.py:46 has its function definition but the body is just `pass`. Since there is no implementation there is nothing to test.
+ 
 launch_app
 - didn't work
 
