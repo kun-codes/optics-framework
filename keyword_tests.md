@@ -257,7 +257,10 @@ scroll_until_element_appears
 - when passing in an appropriate element along with a suitable timeout, the element is scrolled down to and is detected. But when passing in a short timeout it still gives `"status": "SUCCESS"` in the response. Seems misleading. Should have given an error code instead. Scroll successfully stops when element is detected.
 
 select_dropdown_option
-- TODO because it is present in `optics live` tui but not in docs at: https://mozarkai.github.io/optics-framework/usage/keyword_usage/
+- works
+- when passed an option which is not present in the dropdown, it selects an incorrect option instead of throwing an error. Should have thrown an error instead
+- correctly throws an error when the dropdown element is not present on screen
+- it is present in `optics live` tui but not in docs at: https://mozarkai.github.io/optics-framework/usage/keyword_usage/
 
 sleep
 - work
