@@ -39,7 +39,8 @@ detect_and_press
 - when passing an element as an xpath when it is not on screen, same happens as the above point
 
 enter_number
-- TODO
+- doesn't work
+- can be fixed by using copying code structure from `enter_text()` in `action_keyword.py` to `enter_number()` in `action_keyword.py`
 
 enter_text
 - when passing element as a text string when it is on screen, the element is detected and text is entered but an E0401 error code is thrown. No logs are printed in `execution_logs.log` or `internal_logs.log`. A `NoSuchElementError` is thrown followed by a "Entering text into element" log in `internal_logs.log`.
