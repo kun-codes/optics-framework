@@ -114,7 +114,7 @@ get_driver_session_id
 - works
 
 get_interactive_elements
-- works when passing without any filter.
+- works when passing without any filter. However default behavior (no filter) returns all elements including non-interactive containers like `FrameLayout`, `LinearLayout`, etc. which is misleading given the keyword name. Use `filter_config: ["interactive"]` to get only interactive elements.
 - doesn't work when passing a filter. Tried with:
     ```
     {
