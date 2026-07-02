@@ -115,23 +115,8 @@ get_driver_session_id
 
 get_interactive_elements
 - works when passing without any filter. However default behavior (no filter) returns all elements including non-interactive containers like `FrameLayout`, `LinearLayout`, etc. which is misleading given the keyword name. Use `filter_config: ["interactive"]` to get only interactive elements.
-- doesn't work when passing a filter. Tried with:
-    ```
-    {
-        "mode": "keyword",
-        "keyword": "Get Interactive Elements",
-        "params": [["interactive"]],
-        "template_images": {}
-    }
-    ```
+- doesn't work when passing filters like `"buttons"`, `"inputs"`, `"text"`, etc. Returns `E0202: No interactive elements retrieved` even when matching elements are present on screen.
 
-    Got this:
-    ```
-    {
-        "detail": "Execution failed: All fallback attempts failed for keyword 'Get Interactive Elements':\n('buttons',) -> OpticsError('Code.E0701: Execution failed: Code.E0701: Execution failed: Code.E0401: Keyword execution failed: Code.E0202: No interactive elements retrieved using available strategies.')"
-    }
-    ```
-    
 get_screen_elements
 - works but it returns an image as base64 string in the response. A more efficient alternative would be to return a url to the image instead of the base64 string. The image can then be downloaded from the url. 
 - This keyword is not present in the docs at: https://mozarkai.github.io/optics-framework/usage/keyword_usage/ but is present in `optics live` tui.
