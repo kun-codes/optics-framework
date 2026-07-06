@@ -33,10 +33,7 @@ date_evaluate
 - `date_evaluate tomorrow5 04/28/2026 "+1 day"` gives the warning "[EVALUATE] Expected param1 in format '${name}', got 'tomorrow5'. Using as is." in `internal_logs.log` but the value is evaluated correctly. I verified it through the `/elements` command in the tui. The warning is printed twice though.
 
 detect_and_press
-- when passing element as a text string when it is on screen, the element is detected and pressed but an E0401 error code is thrown. No logs are printed in `execution_logs.log` or `internal_logs.log`. A `NoSuchElementError` is thrown followed by a "Pressing element" log in `internal_logs.log`.
-- Same behavior occurs when the element is not on screen but obviously nothing is pressed and no logs saying "Pressing element" appears. Instead, logs "Timeout reached. Rule: any, Elements: ", "Validate Screen: Elements not found. Error: Code.E0201: ['element text'] not found based on rule 'any'." and "Element element text not found. Press is not performed." is printed twice for each in `internal_logs.log`
-- when passing element as an xpath when it is on screen, the element is not detected and hence a press is not performed. `internal_logs.log` show a error `E0201` while `execution_logs.log` show that the element is not found. Logs are printed twice in both `execution_logs.log` and `internal_logs.log`. The TUI shows success with a green checkmark text
-- when passing an element as an xpath when it is not on screen, same happens as the above point
+- logs are printed twice for each log line due to duplicate file handlers being added on each session creation (see `initialize_handlers` in `optics_framework/common/logging_config.py`). This is a framework-wide bug, not specific to `detect_and_press`.
 
 enter_number
 - doesn't work
