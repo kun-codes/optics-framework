@@ -14,7 +14,7 @@ capture_screenshot
 - no screenshot is written to disk
 - logs are printed twice in `execution_logs.log`
 
-clear_element
+clear_element_text
 - error code E0401 is thrown even if element is present on screen when passing element as text string, the text field is cleared despite the error code
 - error code E0201 is thrown when element passed as string is not present on screen
 - error code E0201 is thrown when element passed as xpath is present on screen. Text field is not cleared
