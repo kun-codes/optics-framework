@@ -160,7 +160,7 @@ class AppiumFindElement(ElementSourceInterface):
 
     def _assert_elements_one_pass(
         self, elements: List[str], found: dict, rule: str, check_fn: Callable[[str], bool]
-    ) -> Optional[Tuple[bool, Any]]:
+    ) -> Optional[Tuple[bool, Optional[str]]]:
         """Run one pass over elements using check_fn; return (True, timestamp) if rule is satisfied, else None."""
         for el in elements:
             if not found[el] and check_fn(el):
