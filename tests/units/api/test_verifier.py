@@ -64,8 +64,16 @@ class TestAssertVisibilityVsPresence:
     def test_assert_visibility_false_with_fail_true_raises(self, verifier):
         verifier.strategy_manager.assert_visibility = MagicMock(return_value=(False, None, None))
 
-        with pytest.raises(AssertionError):
+        with pytest.raises(AssertionError, match="Visibility assertion failed"):
             verifier.assert_visibility("Option 47", timeout_str="3", rule="any", fail=True)
+
+    def test_assert_presence_false_with_fail_true_raises_presence_message(self, verifier):
+        """Regression test: the error message must reflect which assertion actually ran,
+        not always say "Presence" regardless of assert_presence vs assert_visibility."""
+        verifier.strategy_manager.assert_presence = MagicMock(return_value=(False, None, None))
+
+        with pytest.raises(AssertionError, match="Presence assertion failed"):
+            verifier.assert_presence("Option 47", timeout_str="3", rule="any", fail=True)
 
     def test_assert_visibility_false_with_fail_false_returns_false(self, verifier):
         verifier.strategy_manager.assert_visibility = MagicMock(return_value=(False, None, None))
