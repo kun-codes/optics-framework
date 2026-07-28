@@ -74,3 +74,6 @@ jobs:
             adb install app-release.apk
             appium &
             npx wait-on tcp:4723
+
+      - name: Run Press Element card test
+        run: pytest tests/emulator/test_press_element_card.py -v --junitxml=press-element-results.xml
