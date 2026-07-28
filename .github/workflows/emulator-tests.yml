@@ -1,9 +1,9 @@
 name: Run Tests on Emulator
 
 on:
-    pull_request:
-    push:
-    workflow_dispatch:
+  pull_request:
+  push:
+  workflow_dispatch:
 
 
 jobs:
@@ -30,6 +30,38 @@ jobs:
       - name: run tree command
         run: tree
 
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version-file: 'pyproject.toml'
+
+      - name: Install Poetry
+        run: |
+          # pinned to poetry 2.4.1 so bump the URL and hash together from
+          # file and sha256 sourced from pypi
+          curl -sSL --proto '=https' --tlsv1.2 -o /tmp/poetry-2.4.1-py3-none-any.whl \
+          https://files.pythonhosted.org/packages/48/3f/4799a3cfbc7b1731468c446daec8b13939d539bfe06b5a68c3ee73a8835d/poetry-2.4.1-py3-none-any.whl
+          echo "a91f13279a3c9add0d12c5ca5c7cb173622930a5c8272fee68c751cb5c72f951  /tmp/poetry-2.4.1-py3-none-any.whl" | sha256sum -c -
+          pipx install /tmp/poetry-2.4.1-py3-none-any.whl
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Configure Poetry
+        run: poetry config virtualenvs.create false
+
+      - name: Build optics package
+        run: poetry build
+
+      - name: Install optics package
+        run: pip3 install dist/*.whl
+
+      - name: Install Appium engine
+        run: optics setup --install appium
+
+      - name: Install Appium server
+        run: |
+          npm install -g appium
+          appium driver install uiautomator2
+
       - name: Start Emulator
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
         with:
@@ -40,3 +72,5 @@ jobs:
           script: |
             adb devices
             adb install app-release.apk
+            appium &
+            npx wait-on tcp:4723
