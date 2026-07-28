@@ -29,4 +29,6 @@ jobs:
         with:
           api-level: 35  # api level 35 because it supports running arm64 apps on x86 emulators
           arch: x86_64
-          script: echo "Hello, world!"
+          script: |
+            adb devices
+            adb install app-release.apk
