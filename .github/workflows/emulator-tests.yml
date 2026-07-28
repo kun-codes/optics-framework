@@ -24,6 +24,12 @@ jobs:
         run: gh release download v1.2.1 --repo mozarkai/optics-test-app --pattern app-release.apk  # version is pinned because
         # of potential breaking changes in the test app
 
+      - name: Install tree command
+        run: sudo apt-get install tree
+
+      - name: run tree command
+        run: tree
+
       - name: Start Emulator
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
         with:
