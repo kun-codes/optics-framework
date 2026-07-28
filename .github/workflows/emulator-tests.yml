@@ -35,6 +35,7 @@ jobs:
         with:
           api-level: 35  # api level 35 because it supports running arm64 apps on x86 emulators
           arch: x86_64
+          target: google_apis  # the default image lacks the arm64 translation layer app-release.apk needs
           script: |
             adb devices
             adb install app-release.apk
