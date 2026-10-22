@@ -58,6 +58,7 @@ from optics_framework.common.nl_agent import (
     AgentResult,
 )
 from optics_framework.api import ActionKeyword, AppManagement, FlowControl, Verifier
+from optics_framework.common.utils import walk_project
 from optics_framework.helper.execute import discover_templates, identify_file_content
 
 
@@ -226,7 +227,7 @@ def _config_from_yaml(path: str) -> Optional[Config]:
 
 def _load_partial_config(folder_path: str) -> Optional[Config]:
     """Load the first YAML in ``folder_path`` that looks like an Optics config."""
-    for root, _dirs, files in os.walk(folder_path):
+    for root, _dirs, files in walk_project(folder_path):
         for fname in files:
             if not fname.lower().endswith((".yml", ".yaml")):
                 continue
@@ -473,7 +474,7 @@ class LiveController:
 
     def _iter_element_files(self) -> Iterator[Tuple[str, str]]:
         """Yield ``(path, lowercased_name)`` for every CSV/YAML under the project."""
-        for root, _dirs, files in os.walk(self.folder_path):
+        for root, _dirs, files in walk_project(self.folder_path):
             for fname in files:
                 lname = fname.lower()
                 if lname.endswith((".csv", ".yml", ".yaml")):
@@ -1000,7 +1001,7 @@ class LiveController:
         otherwise the lexicographically first match keeps the choice deterministic.
         """
         matches: List[str] = []
-        for root, _dirs, files in os.walk(self.folder_path):
+        for root, _dirs, files in walk_project(self.folder_path):
             for fname in files:
                 if not fname.lower().endswith(".csv"):
                     continue
@@ -1256,7 +1257,7 @@ class LiveController:
     def natural_language_available(self) -> bool:
         """True if an LLM engine is enabled in config (an ``llm_models`` entry).
 
-        Instantiation errors (missing ``[llm]`` extra, bad credentials) are not probed
+        Instantiation errors (missing engine extra, bad credentials) are not probed
         here — they surface with an actionable message in :meth:`run_natural_language`.
         """
         if self._nl_available is None:
@@ -1331,11 +1332,12 @@ class LiveController:
         """Build (and cache) the NL agent. Raises OpticsError if no LLM is usable."""
         if self._nl_agent is not None:
             return self._nl_agent
-        llm = self.session.optics.get_llm()  # may raise E0601 if the [llm] extra is missing
+        llm = self.session.optics.get_llm()  # may raise E0601 if the engine's extra is missing
         if llm is None or not getattr(llm, "instances", None):
             raise OpticsError(
                 Code.E0501,
-                message="No LLM engine enabled. Enable a 'gemini' entry under llm_models in config.yaml.",
+                message="No LLM engine enabled. Enable a gemini, openai or anthropic entry "
+                "under llm_models in config.yaml.",
             )
         self._nl_agent = NaturalLanguageAgent(
             llm=llm,

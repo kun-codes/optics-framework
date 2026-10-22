@@ -81,6 +81,12 @@ class Appium(DriverInterface):
     NAME = "appium"
     NOT_INITIALIZED = "Appium driver is not initialized. Please start the session first."
     MOBILE_TYPE_COMMAND = "mobile: type"
+    IOS_SPECIAL_KEYS = {
+        SpecialKey.ENTER: "\n",
+        SpecialKey.TAB: "\t",
+        SpecialKey.BACKSPACE: "\b",
+        SpecialKey.SPACE: " ",
+    }
     MOBILE_PREFIX = "mobile:"
     MOBILE_CLEAR = "mobile: clear"
     CAP_APP_PACKAGE = "appium:appPackage"
@@ -1074,11 +1080,38 @@ class Appium(DriverInterface):
         internal_logger.debug(f"Clearing text in element: {element}")
         element.clear()
 
+    def _is_ios(self) -> bool:
+        return self._active_platform() == self.PLATFORM_IOS
+
+    def _enter_text_ios(self, driver: WebDriver, text: str | SpecialKey) -> None:
+        """XCUITest has no 'mobile: type' or keycodes; type into the element that has keyboard focus.
+
+        With nothing focused this raises: 'mobile: keys' answers 200 there but types nothing, which
+        would let the keyword pass without entering any text.
+        """
+        if isinstance(text, SpecialKey):
+            keys = self.IOS_SPECIAL_KEYS.get(text)
+            if keys is None:
+                raise OpticsError(Code.E0401, message=f"Special key '{text.value}' is not supported on iOS")
+        else:
+            keys = utils.strip_sensitive_prefix(str(text))
+        try:
+            focused = driver.switch_to.active_element
+        except WebDriverException as e:
+            raise OpticsError(
+                Code.E0401, message="No element has keyboard focus on iOS; tap the field before entering text", cause=e
+            ) from e
+        focused.send_keys(keys)
+
     @supported_on(*MOBILE)
     def enter_text(self, text: Union[str, SpecialKey], event_name: Optional[str] = None) -> None:
         driver = self._require_driver()
         if event_name:
             self.event_sdk.capture_event(event_name)
+
+        if self._is_ios():
+            self._enter_text_ios(driver, text)
+            return
 
         if isinstance(text, SpecialKey):
             keycode = self.KEYCODE_MAP.get(text)
@@ -1182,7 +1215,9 @@ class Appium(DriverInterface):
         driver = self._require_driver()
         try:
             timestamp = self.event_sdk.get_current_time_for_events()
-            if isinstance(text, SpecialKey):
+            if self._is_ios():
+                self._enter_text_ios(driver, text)
+            elif isinstance(text, SpecialKey):
                 self._handle_special_key_keyboard_input(driver, text)
             else:
                 self._handle_string_keyboard_input(driver, str(text))
@@ -1236,6 +1271,22 @@ class Appium(DriverInterface):
 
         # Handle lowercase input so uppercase letters map to correct keycodes
         return mapping.get(char.lower())
+
+    @supported_on(*MOBILE)
+    def go_back(self, event_name: Optional[str] = None) -> None:
+        """iOS has no system back: XCUITest taps a navigation bar button, and when the screen has
+        none it only logs, which would let the keyword pass without going back.
+        """
+        driver = self._require_driver()
+        if self._is_ios() and not driver.find_elements(
+            AppiumBy.IOS_CLASS_CHAIN, "**/XCUIElementTypeNavigationBar/XCUIElementTypeButton"
+        ):
+            raise OpticsError(
+                Code.E0401, message="No navigation bar back button on this iOS screen; Go Back has nothing to tap"
+            )
+        if event_name:
+            self.event_sdk.capture_event(event_name)
+        driver.back()
 
     @supported_on(*MOBILE)
     def get_text_element(self, element: Any) -> str:

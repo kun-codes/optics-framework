@@ -367,10 +367,11 @@ def save_screenshot(img, name, output_dir, time_stamp=None):
     name = re.sub(r'[^a-zA-Z0-9\s_]', '', name)
     if time_stamp is None:
         time_stamp = str(datetime.now().astimezone().strftime('%Y-%m-%dT%H-%M-%S-%f'))
-    screenshot_file_path = os.path.join(output_dir, f"{time_stamp}-{name}.jpg")
+    file_stamp = str(time_stamp).replace(":", "-")
+    screenshot_file_path = os.path.join(output_dir, f"{file_stamp}-{name}.jpg")
     try:
         cv2.imwrite(screenshot_file_path, img)
-        internal_logger.debug(f'Screenshot saved as : {time_stamp}-{name}.jpg')
+        internal_logger.debug(f'Screenshot saved as : {file_stamp}-{name}.jpg')
         internal_logger.debug(f"Screenshot saved to :{screenshot_file_path}")
 
     except Exception as e:
@@ -1162,3 +1163,19 @@ def bboxes_from_webelements(
             continue
         result.append(bbox_from_webelement_like(obj))
     return result
+
+
+# Folders that never hold a project's own files: a project's virtualenv carries optics's bundled
+# sample suites, which would be run, linted and merged with the project's.
+SKIP_SCAN_DIRS = {"__pycache__", "generated", "execution_output", "venv", "env"}
+
+
+def skip_scan_dir(name: str) -> bool:
+    return name in SKIP_SCAN_DIRS or name.startswith(".")
+
+
+def walk_project(folder_path: str):
+    """`os.walk` over a project, without its hidden folders, caches or run output."""
+    for root, dirs, files in os.walk(folder_path):
+        dirs[:] = [d for d in dirs if not skip_scan_dir(d)]
+        yield root, dirs, files
