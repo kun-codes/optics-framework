@@ -58,6 +58,10 @@ class TestHelperConstruction:
     def test_sift_nfeatures_overridable_and_coerced(self):
         assert make_helper(sift_nfeatures="500")._sift_nfeatures == 500
 
+    def test_sift_fallback_is_on_unless_turned_off(self):
+        assert make_helper()._sift_fallback is True
+        assert make_helper(sift_fallback=False)._sift_fallback is False
+
 
 class TestMatchTemplateFast:
     def test_exact_match_returns_center_and_bbox(self, rng, helper):
@@ -297,6 +301,21 @@ class TestFindElement:
         helper = templated("btn.png", template)
 
         assert helper.find_element(frame, "btn.png", index=5) is None
+
+    def test_scaled_template_is_not_found_when_sift_fallback_is_off(self, rng, tmp_path):
+        small = np.random.default_rng(7).integers(40, 240, (7, 10), dtype=np.uint8)
+        template = cv2.cvtColor(
+            cv2.resize(small, (60, 42), interpolation=cv2.INTER_NEAREST),
+            cv2.COLOR_GRAY2BGR,
+        )
+        frame = noise(rng, 220, 280, 3)
+        frame_with(frame, cv2.resize(template, (120, 84), interpolation=cv2.INTER_LINEAR), [(60, 80)])
+        path = tmp_path / "btn.png"
+        cv2.imwrite(str(path), template)
+        helper = make_helper(sift_fallback=False)
+        helper.templates.add_template("btn.png", str(path))
+
+        assert helper.find_element(frame, "btn.png") is None
 
     def test_scaled_template_falls_back_to_sift(self, rng, templated):
         """A 2x-scaled instance is invisible to the fast path; SIFT recovers it."""
