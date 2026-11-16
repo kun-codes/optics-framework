@@ -620,6 +620,31 @@ Driver sources define the automation frameworks used to control devices or brows
     | `x_invert`, `y_invert` | Coordinate inversion flags |
     | `pixel_width`, `pixel_height` | Screen pixel dimensions |
     | `mickeys_width`, `mickeys_height` | Mouse coordinate dimensions |
+    | `app_icon` | Image of the app's icon on the home screen, which `Launch App` taps |
+    | `app_name` | Name shown under that icon, tapped when the icon is not found |
+    | `home_delay` | Seconds after the Home press and after the Back press for the launcher to settle (default `1.0`) |
+
+    **Launching apps:** the dongle cannot see the screen, so `Launch App` and `Launch Other App` press Home and then Back to reach the launcher's default page (Home opens the app drawer when the phone is already on the home screen, and Back closes it), then press the app's icon on it with `Press Element`. The app's icon must sit on that page, outside any folder. Home is sent as a Consumer Control key, so the dongle firmware must support it, and an `elements_sources` entry such as `camera_screenshot` must be enabled to find the icon. Set `sift_fallback: false` on `templatematch` so an icon that is not on screen is reported as not found instead of matched to a look-alike.
+
+    `Launch App` takes no package and presses `app_icon`, then `app_name`:
+
+    ```yaml
+    capabilities:
+      app_icon: my_app.png
+      app_name: My Demo App
+    ```
+
+    `Launch Other App` takes an element, so one element can list the icon and the name, tried in order:
+
+    ```csv
+    element_name,element_id
+    my_app,my_app.png
+    my_app,My Demo App
+    ```
+
+    Then call it as `Launch Other App ${my_app}`.
+
+    A package id cannot be pressed, so it fails like any element that is not on screen. Neither keyword checks that the app opened: follow it with `Validate Element`.
 
 === "Smart TV (Appium)"
 
@@ -967,6 +992,9 @@ Image detection engines provide template matching capabilities for locating UI e
     rotated instances. `capabilities.sift_nfeatures` (default `2000`) caps the
     SIFT features extracted per frame in that fallback, bounding per-call
     memory; raise it only if scaled matches fail on feature-poor screens.
+    `capabilities.sift_fallback: false` turns the fallback off, for a fixed
+    camera that always sees the image at one scale: an image that is not on
+    screen is then reported as not found rather than matched to a look-alike.
 
 === "Remote OIR"
 

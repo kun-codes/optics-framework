@@ -1,6 +1,8 @@
 from typing import Optional
+from optics_framework.api.action_keyword import ActionKeyword
 from optics_framework.common.base_factory import InstanceFallback
 from optics_framework.common.caller_policy import refuse_local_resource
+from optics_framework.common.error import Code, OpticsError
 from optics_framework.common.logging_config import internal_logger
 from optics_framework.common.optics_builder import OpticsBuilder
 
@@ -17,6 +19,7 @@ class AppManagement:
     """
 
     def __init__(self, builder: OpticsBuilder):
+        self._builder = builder
         self.driver: InstanceFallback = builder.get_driver()
         self._config = builder.session_config
         if self.driver is None:
@@ -45,6 +48,8 @@ class AppManagement:
         :param event_name: The event triggering the app launch, if any.
         """
         refuse_local_resource(self._config, app_identifier)
+        if self._launches_from_home_screen():
+            return self._launch_from_home_screen(self.driver.active_instance.app_targets, event_name)
         return self.driver.launch_app(
             app_identifier=app_identifier,
             app_activity=app_activity,
@@ -71,7 +76,32 @@ class AppManagement:
         :param event_name: The event triggering the app start, if any.
         """
         refuse_local_resource(self._config, app_name)
+        if self._launches_from_home_screen():
+            self._launch_from_home_screen([app_name], event_name)
+            return
         self.driver.launch_other_app(app_name=app_name, event_name=event_name)
+
+    def _launches_from_home_screen(self) -> bool:
+        return getattr(getattr(self.driver, "active_instance", None), "LAUNCHES_FROM_HOME_SCREEN", False)
+
+    def _launch_from_home_screen(self, targets: list[str], event_name: Optional[str]) -> None:
+        """Press each target (icon image, then name) on the default home screen until one is found."""
+        if not targets:
+            raise OpticsError(
+                Code.E0503,
+                message="Set `app_icon` or `app_name` in the ble capabilities: the app is tapped on the home screen.",
+            )
+        presser = ActionKeyword(self._builder)
+        failure: Optional[OpticsError] = None
+        for target in targets:
+            self.driver.show_home_screen()
+            try:
+                presser.press_element(target, event_name=event_name)
+                return
+            except OpticsError as error:
+                failure = error
+                internal_logger.warning(f"'{target}' not found on the home screen: {error}")
+        raise failure
 
     def close_and_terminate_app(self) -> None:
         """

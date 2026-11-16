@@ -32,6 +32,17 @@ class CapabilitiesConfig(BaseModel):
         default=0, ge=0, description="Width of the device in mickeys"
     )
 
+    app_icon: Optional[str] = Field(
+        default=None,
+        description="Image of the app's icon on the home screen, which Launch App taps",
+    )
+    app_name: Optional[str] = Field(
+        default=None,
+        description="Name shown under the app's icon, which Launch App taps when the icon is not found",
+    )
+    home_delay: float = Field(
+        default=1.0, ge=0, description="Seconds after each Home press for the launcher to settle"
+    )
     # app_element: str = Field(default="app", description="Element to launch the app")
     model_config = ConfigDict(populate_by_name=True)
 
@@ -61,6 +72,14 @@ class BLEDriver(DriverInterface):
     KEYBOARD_CLOSE_APP = "4 0 61 0 0 0 0 0"
     KEYBOARD_SELECT_ALL = "1 0 4 0 0 0 0 0"
     KEYBOARD_BACKSPACE = "0 0 42 0 0 0 0 0"
+
+    # The firmware sends a one-number line as a 16-bit Consumer Control usage, which Android maps
+    # to its own Home and Back keys on every phone; 0 releases it.
+    CONSUMER_HOME = 547
+    CONSUMER_BACK = 548
+
+    # Read by AppManagement: the dongle cannot find an icon itself, so apps are tapped on the home screen.
+    LAUNCHES_FROM_HOME_SCREEN = True
 
     # Special key mapping from SpecialKey enum to HID key names
     SPECIAL_KEY_MAPPING = {
@@ -182,6 +201,9 @@ class BLEDriver(DriverInterface):
                 self.port = resolved_port
         else:
             self.port = port_candidate
+
+        self.app_targets = [target for target in (cap.app_icon, cap.app_name) if target]
+        self.home_delay = cap.home_delay
 
         self.device_ratio = cap.pixel_height / cap.pixel_width
         self.x_invert = cap.x_invert
@@ -476,6 +498,21 @@ class BLEDriver(DriverInterface):
         self.ser.write((keyboard_command + "\n").encode("utf-8"))
         time.sleep(0.1)
 
+    def _press_consumer_key(self, usage: int, event_name: Optional[str]) -> None:
+        if event_name:
+            self.event_sdk.capture_event(event_name)
+        for line in (usage, 0):
+            self.ser.write(f"{line}\n".encode("utf-8"))
+            time.sleep(0.1)
+
+    def go_home(self, event_name: Optional[str] = None) -> None:
+        """Press the phone's system Home key."""
+        self._press_consumer_key(self.CONSUMER_HOME, event_name)
+
+    def go_back(self, event_name: Optional[str] = None) -> None:
+        """Press the phone's system Back key."""
+        self._press_consumer_key(self.CONSUMER_BACK, event_name)
+
     def keyboard(self, text: str) -> None:
         """
         Sends keyboard commands to the BLE mouse device.
@@ -515,22 +552,28 @@ class BLEDriver(DriverInterface):
         if skipped:
             internal_logger.warning(f"Skipped {skipped} of {len(text)} characters that have no HID key code")
 
+    def show_home_screen(self) -> None:
+        """
+        Reach the launcher's default page from an app, the app drawer or the home screen.
+
+        Home on the home screen opens the drawer, so Back follows it to close the drawer; from an app or
+        the drawer Home already lands on the home screen, where Back does nothing.
+        """
+        self.go_home()
+        time.sleep(self.home_delay)
+        self.go_back()
+        time.sleep(self.home_delay)
+
     def launch_app(
         self,
         app_identifier: str | None = None,
         app_activity: str | None = None,
         event_name: str | None = None,
     ) -> None:
-        """
-        Launch an application using BLE.
+        raise NotImplementedError("BLE launches apps from the home screen, through AppManagement.")
 
-        :param event_name: The event triggering the app launch.
-        :type event_name: str
-        """
-        raise NotImplementedError("BLE driver does not support launching apps.")
-
-    def launch_other_app(self, app_name, event_name):
-        raise NotImplementedError("BLE driver does not support launching apps.")
+    def launch_other_app(self, app_name, event_name=None):
+        raise NotImplementedError("BLE launches apps from the home screen, through AppManagement.")
 
     def get_app_version(self) -> str:
         raise NotImplementedError("BLE driver does not support getting app version.")
