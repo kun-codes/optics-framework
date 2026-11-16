@@ -52,6 +52,9 @@ class TemplateMatchingHelper(ImageInterface):
             capabilities.get("sift_nfeatures", self._DEFAULT_SIFT_NFEATURES)
         )
 
+        # A fixed camera sees icons at one scale, where SIFT only invents matches for look-alikes.
+        self._sift_fallback = bool(capabilities.get("sift_fallback", True))
+
         # Safe as singletons: the batch runner is sequential within a session,
         # and the concurrent serve/MCP path holds Session.keyword_lock.
         self._sift: cv2.SIFT | None = None
@@ -262,6 +265,8 @@ class TemplateMatchingHelper(ImageInterface):
             return None
         if fast is not None:
             return fast
+        if not self._sift_fallback:
+            return None
 
         center_x, center_y, top_left, bottom_right = self._sift_match(
             input_data, template, confidence_level, min_inliers
